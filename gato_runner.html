@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gato Runner</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: transparent; /* Fundo transparente */
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Configuração do jogo
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        document.body.appendChild(canvas);
+        
+        canvas.width = 600;
+        canvas.height = 200;
+        
+        // Carregando imagens
+        const catImg = new Image();
+        catImg.src = "https://i.imgur.com/wL3DsUu.png"; // Imagem de um gato
+        
+        const boxImg = new Image();
+        boxImg.src = "https://i.imgur.com/MRb1X67.png"; // Imagem de uma caixa
+        
+        let cat = { x: 50, y: 150, width: 40, height: 40, velocityY: 0, jumping: false };
+        let boxes = [];
+        let gravity = 0.6;
+        let gameSpeed = 5;
+        
+        function spawnBox() {
+            let box = { x: canvas.width, y: 160, width: 30, height: 30 };
+            boxes.push(box);
+            setTimeout(spawnBox, 2000 + Math.random() * 2000);
+        }
+        
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar o gato
+            ctx.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
+            
+            // Atualizar física do gato
+            cat.y += cat.velocityY;
+            cat.velocityY += gravity;
+            
+            if (cat.y >= 150) {
+                cat.y = 150;
+                cat.jumping = false;
+            }
+            
+            // Desenhar e mover caixas
+            for (let i = 0; i < boxes.length; i++) {
+                let box = boxes[i];
+                box.x -= gameSpeed;
+                ctx.drawImage(boxImg, box.x, box.y, box.width, box.height);
+                
+                if (box.x + box.width < 0) {
+                    boxes.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+        
+        window.addEventListener("keydown", function (e) {
+            if (e.code === "Space" && !cat.jumping) {
+                cat.velocityY = -10;
+                cat.jumping = true;
+            }
+        });
+        
+        spawnBox();
+        update();
+    </script>
+</body>
+</html>
